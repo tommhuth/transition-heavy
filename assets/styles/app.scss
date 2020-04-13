@@ -1,0 +1,78 @@
+@import "global.scss";
+@import "variables.scss";
+@import "typography.scss";
+
+
+.pages {
+    height: 100vh;
+}
+
+.page {
+    min-height: 100vh;
+    overflow: hidden;
+    background-color: #ccc; 
+
+    &__inner {
+        padding: 3em;
+    }
+
+    h1 {
+        font-size: 10em;
+        line-height: .9;
+        margin-top: .1em;
+        margin-bottom: .1em;
+    }
+
+    p {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        font-size: 1.25em;
+        line-height: 1.6;
+    }
+
+    ul {
+        margin-top: 2em;
+    }
+
+    li {
+        border-bottom: 1px solid #999;
+        padding-bottom: .81em;
+        margin-bottom: .81em;
+        font-size: 2em;
+    }
+}
+
+
+@keyframes title-top-in {
+    from {
+        padding-top: 7em;
+    } 
+    to {
+        padding-top: 15em;
+    }
+}
+
+.title {
+    text-align: center;
+    padding-top:7em;
+    padding-bottom:7em;
+    margin-bottom: 3em;
+    padding-left: 10em;
+    padding-right: 10em;
+    margin-left: -3em;
+    margin-right: -3em;
+    line-height: .75;
+    margin-top: -3em;
+    background-color: #999;
+
+    &--top {
+        animation: title-top-in 1.5s cubic-bezier(0.76, 0, 0.24, 1) both;
+    }
+
+    &--bottom {
+        max-height: 150px;
+        margin-bottom: -3em;
+        margin-top: 3em;
+        overflow: hidden;
+    }
+}
