@@ -10,11 +10,12 @@ export default function Scroller({ children }) {
     let targetScroll = useRef(0)
     let currentScroll = useRef(0)
     let smooth = useRef(.1)
-    let navigating = useStore(store => store.navigating)
     let setNavigating = useStore(store => store.setNavigating)
+    let navigating = useStore(store => store.navigating)
     let setMaxScroll = useStore(store => store.setMaxScroll)
     let setScrollPosition = useStore(store => store.setScrollPosition)
     let prevScrollPosition = useRef(-1)
+    let urls = Config.URLS
 
     useEffect(() => {
         let height = wrapper.current.offsetHeight
@@ -117,32 +118,27 @@ export default function Scroller({ children }) {
             }
 
 
-            if (currentScroll.current === 0 && e.deltaY < -10) {
-                let urls = Config.URLS
+            if (currentScroll.current === 0 && e.deltaY < -10) { 
                 let previousUrl = urls[urls.findIndex(i => i.url === location.pathname) - 1]
 
                 if (previousUrl) {
-
+                    setNavigating(true)
                     navigate(previousUrl.url, {
                         state: { origin: "top" },
                         replace: false
                     })
-                    setNavigating(true)
-                    setTimeout(() => setNavigating(false), Config.TRANSITION_DURATION)
                 }
             }
 
             if (currentScroll.current === -maxScroll && e.deltaY > 10) {
-                let urls = Config.URLS
                 let nextUrl = urls[urls.findIndex(i => i.url === location.pathname) + 1]
 
                 if (nextUrl) {
+                    setNavigating(true)
                     navigate(nextUrl.url, {
                         state: { origin: nextUrl.origin },
                         replace: false
-                    })
-                    setNavigating(true)
-                    setTimeout(() => setNavigating(false), Config.TRANSITION_DURATION)
+                    }) 
                 }
             }
         }
