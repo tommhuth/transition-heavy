@@ -22,6 +22,7 @@ const plugins = [
         filename: "index.html",
         rev
     }),
+    /*
     new CopyWebpackPlugin(
         [
             {
@@ -29,7 +30,8 @@ const plugins = [
                 to: "splashscreens/[name]." + rev + ".[ext]"
             }
         ]
-    ),
+    ),*/
+    /*
     new WebpackPwaManifest({
         name: "React boilplate",
         short_name: "React boilplate",
@@ -56,7 +58,7 @@ const plugins = [
                 sizes: [120, 180]
             }
         ]
-    }),
+    }),*/
     /*
     new InjectManifest({
         swSrc: "./src/serviceworker.js",
