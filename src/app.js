@@ -1,40 +1,52 @@
 import "../assets/styles/app.scss"
 
-import React, { useRef, useEffect } from "react"
+import React, { useEffect } from "react"
 import ReactDOM from "react-dom"
-import { Router, Location } from "@reach/router"
+import { Router, Location, globalHistory } from "@reach/router"
 import { AnimatePresence } from "framer-motion"
-import Home from "./pages/Home"
-import Index from "./pages/Index"
+import { useStore } from "./store"
 import Article1 from "./pages/Article1"
-import { useStore } from "./store"  
+import Splash from "./pages/Splash"
+import Index from "./pages/Index"
 
-function App() { 
-    let setNavigating = useStore(store => store.setNavigating)
+function App() {
+    let setTransitioning = useStore(store => store.setTransitioning)
+    let transitioning = useStore(store => store.transitioning)
+
+    useEffect(() => {
+        globalHistory.listen(() => setTransitioning(true))
+    }, [])
+
+    useEffect(() => {
+        document.body.style.overflow = transitioning ? "hidden" : null
+    }, [transitioning])
 
     return (
         <Location>
-            {({ location }) => (
-                <> 
-                    <AnimatePresence 
-                        onExitComplete={()=> setNavigating(false)}
-                        initial={false}
-                    >
-                        <Router
-                            primary={false}
-                            key={location.key} 
-                            location={location}
+            {({ location }) => {
+                return (
+                    <>
+                        <AnimatePresence
+                            onExitComplete={() => setTransitioning(false)}
+                            initial={false}
                         >
-                            <Home path="/" />
-                            <Index path="/table-of-contents" />
-                            <Article1 path="/article-1" />
-                        </Router>
-                    </AnimatePresence>
-                </>
-            )}
+                            <Router
+                                primary={false}
+                                key={location.key}
+                                location={location}
+                            >
+                                <Splash path="/" key="splash" />
+                                <Index path="/content" key="contents" />
+                                <Article1 path="/article-1" key="splash" />
+                            </Router>
+                        </AnimatePresence>
+                    </>
+                )
+            }}
         </Location>
     )
 }
+
 
 ReactDOM.render(
     <App />,

@@ -1,0 +1,3 @@
+@mixin fluid-type($value, $min, $max){
+    font-size: unquote("min(max(#{$min}, #{$value}), #{$max})");
+}

@@ -1,5 +1,5 @@
 export default {
-    TRANSITION_DURATION: 1500,
+    TRANSITION_DURATION: 1000,
     REGISTER_SERVICEWORKER: process.env.REGISTER_SERVICEWORKER === "true",
     URLS: [
         {

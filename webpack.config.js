@@ -105,7 +105,13 @@ module.exports = {
                             }
                         }
                     },
-                    "sass-loader" // compiles Sass to CSS, using Node Sass by default
+                    "sass-loader", // compiles Sass to CSS, using Node Sass by default
+                    {
+                        loader: "sass-resources-loader",
+                        options: {
+                            resources: ["assets/styles/utils.scss"],
+                        }
+                    }
                 ]
             }
         ]

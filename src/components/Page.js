@@ -1,103 +1,133 @@
-import React from "react"
+
+import React, { useRef, useEffect, useState } from "react"
 import { useLocation } from "@reach/router"
 import { motion } from "framer-motion"
-import Scroller from "./Scroller"
-import IntroTitle from "./IntroTitle"
-import Only from "./Only"
+import { useAnimationFrame, throttle } from "../utils"
 import Config from "../Config"
+import ResizeObserver from "resize-observer-polyfill"
 
-export default function Page({
-    children,
-    title
-}) {
-    let state = useLocation().state
-    let origin = (state && state.origin) || "bottom"
-    let animate = {}
-    let exit = {}
-    let initial = {}
 
-    if (origin === "top") {
-        exit.y = "100vh"
-        exit.zIndex = 2
-        exit.position = "absolute"
-        exit.left = 0
-        exit.right = 0
-
-        animate.y = 0
-
-        initial.y = -200
+const transition = {
+    duration: Config.TRANSITION_DURATION / 1000,
+    ease: [0.76, 0, 0.24, 1]
+}
+const variants = {
+    initial(transitionType) { 
+        if (transitionType === "bottom") {
+            return {
+                top: "100vh",
+                paddingTop: 100
+            }
+        } else if (transitionType === "top") {
+            return {
+                top: 0,
+                height: "0vh",
+                zIndex: 10,
+                minHeight: 0,
+                transition
+            }
+        } else {
+            return {}
+        }
+    },
+    exit(transitionType) {
+        if (transitionType === "bottom") {
+            return {
+                top: -100,
+                transition
+            }
+        } else if (transitionType === "top") {
+            return {
+                top: 100,
+                transition
+            }
+        } else {
+            return {}
+        }
+    },
+    enter(transitionType) {
+        if (transitionType === "bottom") {
+            return {
+                top: 0,
+                paddingTop: 0,
+                transition
+            }
+        } else if (transitionType === "top") {
+            return {
+                top: 0,
+                height: "100vh",
+                paddingTop: 0,
+                transitionEnd: {
+                    height: null,
+                    zIndex: null,
+                    minHeight: null
+                },
+                transition
+            } 
+        } else {
+            return {}
+        }
     }
+}
 
-    if (origin === "bottom") {
-        exit.y = -300
+export default function Page({ children, backgroundColor = "white" }) {
+    let main = useRef()
+    let location = useLocation()
+    let { transitionType } = location.state || {}
+    let y = useRef(0)
+    let targetY = useRef(0)
+    let [height, setHeight] = useState(location.pathname)
+    let [owner] = useState(location.key)
 
-        initial.zIndex = 2
-        initial.position = "absolute"
-        initial.left = 0
-        initial.right = 0
-        initial.height = "100vh"
-        initial.top = 0
-        initial.y = "100vh"
+    useEffect(() => {
+        document.body.style.height = height + "px"
+        document.body.style.backgroundColor = backgroundColor
+    }, [height])
 
-        animate.y = 0
-    }
+    useAnimationFrame(() => {
+        y.current += (targetY.current - y.current) * .125
 
-    if (origin === "bottom-partial") {
-        exit.y = -300
+        main.current.style.transform = `translateY(${y.current}px) translateZ(0)`
+        main.current.style.backgroundColor = `translateY(${y.current}px) translateZ(0)`
+    })
 
-        initial.zIndex = 2
-        initial.position = "absolute"
-        initial.left = 0
-        initial.right = 0
-        initial.height = "100vh"
-        initial.top = 0
-        initial.y = window.innerHeight - 374
+    useEffect(() => {
+        let listener = throttle(entries => {
+            setHeight(entries[0].contentRect.height)
+        }, 500)
+        let resizer = new ResizeObserver(listener)
 
-        animate.y = 0
-    }
+        resizer.observe(main.current)
+
+        return () => resizer.disconnect()
+    }, [])
+
+    useEffect(() => {
+        let onScroll = () => {
+            if (owner === location.key) {
+                targetY.current = (-window.scrollY)
+            }
+        }
+        let { height } = main.current.getBoundingClientRect()
+
+        setHeight(height)
+
+        window.addEventListener("scroll", onScroll, { passive: true })
+
+        return () => window.removeEventListener("scroll", onScroll, { passive: true })
+    }, [location.key, owner])
 
     return (
-        <motion.div
+        <motion.main
             className="page"
-            animate={{
-                ...animate,
-                transition: {
-                    duration: Config.TRANSITION_DURATION / 1000,
-                    ease: [0.76, 0, 0.24, 1]
-                },
-                transitionEnd: {
-                    zIndex: null,
-                    height: null,
-                    position: null,
-                    left: null,
-                    right: null,
-                    top: null
-                }
-            }}
-            exit={{
-                ...exit,
-
-                transition: {
-                    duration: Config.TRANSITION_DURATION / 1000,
-                    ease: [0.76, 0, 0.24, 1]
-                }
-            }}
-            initial={{
-                ...initial,
-
-            }}
+            ref={main}
+            custom={transitionType}
+            exit={"exit"}
+            variants={variants}
+            animate={"enter"}
+            initial={"initial"}
         >
-            <Scroller>
-                <div className="page__inner">
-                    <Only if={title}>
-                        <IntroTitle top>
-                            {title}
-                        </IntroTitle>
-                    </Only>
-
-                    {children}
-                </div>
-            </Scroller>
-        </motion.div>
+            {children}
+        </motion.main>
     )
 }

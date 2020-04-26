@@ -2,24 +2,10 @@ import create from "zustand"
 
 const [useStore, api] = create((set, get) => {
     return {
-        navigating: false,
-        maxScroll: 0,
-        scrollPosition: 0,
-
-        // actions
-        setScrollPosition(position) {
+        transitioning: false, 
+        setTransitioning(value) {
             set({
-                scrollPosition: position
-            })
-        },
-        setMaxScroll(max) {
-            set({
-                maxScroll: max
-            })
-        },
-        setNavigating(val) {
-            set({
-                navigating: val
+                transitioning: value
             })
         }
     }

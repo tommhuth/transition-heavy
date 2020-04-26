@@ -14,15 +14,11 @@
     appearance: none; 
 } 
 
-html {
-    background-color: #FFF;
+html, body {
+    overscroll-behavior: none;
+    background-color: #FFF; 
 }
-
-html, 
-body {
-    height: 100vh;
-    overflow: hidden;
-}
+ 
 
 .visually-hidden {
     position: absolute;
