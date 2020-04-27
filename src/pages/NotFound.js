@@ -5,12 +5,12 @@ import Page from "../components/Page"
 import Container from "../components/Container"
 
 
-export default function Home({ path }) {
+export default function NotFound({ path }) {
     return (
         <Page path={path}>
-            <Container full> 
-                <h1 className="h1"> Splash screen</h1>
-                <Link to="/index" state={{ transitionType: "bottom" }}>Next</Link>
+            <Container> 
+                <h1 className="h1"> 404</h1>
+                <Link to="/" state={{ transitionType: "bottom" }}>Home</Link>
             </Container>
         </Page>
     )
