@@ -7,8 +7,7 @@
     position: fixed;
     top:0;
     left:0;
-    background-color: #FFF;
-    outline: 1px solid blue;
+    background-color: #FFF; 
     overflow: hidden;
     right:0; 
     min-height: 100%;
@@ -25,8 +24,46 @@
     }
 }
 
+.title { 
+    text-align: center; 
+    padding: 100px 10vw 1em 10vw;
+    @include fluid-type(20vw, 30px, 135px);
+    font-weight: bold;
+    display: block;
+    line-height: 1.1;
+    letter-spacing: -3px;
+    position: relative; 
+
+    svg {
+        position: absolute;
+        bottom: 0;
+        left:0;
+        z-index: 1;
+    }
+
+    &__inner {
+        max-width: 700px;
+        pointer-events: none;
+        z-index: 1;
+        position: relative;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    &--next {
+        box-sizing: border-box;
+        padding-bottom: 0;
+
+        .title__inner {
+            height: 225px; 
+            overflow: hidden;
+        }
+    }
+}
+
 .container {
-    padding: 10vw 11vw 10vw;
+    padding: 10vw 11vw 15vw;
     flex: 1;
 
     &--full {

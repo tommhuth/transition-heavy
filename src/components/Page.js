@@ -1,11 +1,12 @@
 
 import React, { useRef, useEffect, useState } from "react"
-import { useLocation, navigate } from "@reach/router"
-import { motion } from "framer-motion"
+import { useLocation, navigate, globalHistory } from "@reach/router"
+import { motion, useSpring, useTransform } from "framer-motion"
 import { useAnimationFrame, throttle } from "../utils"
 import Config from "../Config"
 import { useStore } from "../store"
 import ResizeObserver from "resize-observer-polyfill"
+import Only from "./Only"
 
 const urls = [
     "/", "/index", "/article-1"
@@ -14,8 +15,15 @@ const transition = {
     duration: Config.TRANSITION_DURATION / 1000,
     ease: [0.76, 0, 0.24, 1]
 }
+
+export { transition }
+
 const variants = {
-    initial(transitionType) {
+    initial({ transitionType, action, adjacentY }) {
+        if (action !== "PUSH") {
+            return {}
+        }
+
         if (transitionType === "bottom") {
             return {
                 top: window.innerHeight,
@@ -29,12 +37,22 @@ const variants = {
                 minHeight: 0,
                 transition
             }
+        } else if (transitionType === "adjacent") {
+            return {
+                top: adjacentY,
+                zIndex: 10,
+                transition
+            }
         } else {
             return {}
         }
     },
-    exit(transitionType) {
-        if (transitionType === "bottom") {
+    exit({ transitionType, action }) {
+        if (action !== "PUSH") {
+            return {}
+        }
+
+        if (transitionType === "bottom" || transitionType === "adjacent") {
             return {
                 top: -300,
                 transition
@@ -48,8 +66,12 @@ const variants = {
             return {}
         }
     },
-    enter(transitionType) {
-        if (transitionType === "bottom") {
+    enter({ transitionType, action }) {
+        if (action !== "PUSH") {
+            return {}
+        }
+
+        if (transitionType === "bottom" || transitionType === "adjacent") {
             return {
                 top: 0,
                 paddingTop: 0,
@@ -75,30 +97,44 @@ const variants = {
 
 
 function getUrl(current, direction = 1) {
-    try {
-        return urls[urls.indexOf(current) + direction] || null
-    } catch (e) {
-        return null
-    }
+    return urls[urls.indexOf(current) + direction] || null
 }
 
-export default function Page({ children, backgroundColor = "white", path }) {
+
+export default function Page({
+    children,
+    backgroundColor = "white",
+    path,
+    hasAdjacent
+}) {
     let main = useRef()
     let location = useLocation()
-    let { transitionType } = location.state || {}
+    let { transitionType, adjacentY } = location.state || {}
     let y = useRef(0)
     let targetY = useRef(0)
     let [height, setHeight] = useState(location.pathname)
     let [owner] = useState(location.key)
-    let [triggerTop, setTriggerTop] = useState(0)
-    let [triggerBottom, setTriggerBottom] = useState(0)
+    let triggerTop = useSpring(0, { damping: 20, stiffness: 400, mass: .25 })
+    let triggerBottom = useSpring(0, { damping: 20, stiffness: 400, mass: .25 })
     let transitioning = useStore(store => store.transitioning)
+    let action = useStore(store => store.action)
+    let tr = useRef(false)
+
+    useEffect(() => {
+        tr.current = transitioning
+        console.log(transitioning)
+        triggerTop.set(0)
+        triggerBottom.set(0)
+    }, [transitioning])
 
     useEffect(() => {
         document.body.style.height = height + "px"
         document.body.style.backgroundColor = backgroundColor
     }, [height])
 
+    useEffect(() => window.scrollTo(0, 0), [])
+
+    // scroll raf
     useAnimationFrame(() => {
         let dy = targetY.current - y.current
         let ease = .1
@@ -107,11 +143,12 @@ export default function Page({ children, backgroundColor = "white", path }) {
             y.current = targetY.current
         } else {
             y.current += (targetY.current - y.current) * ease
-        } 
+        }
 
         main.current.style.transform = `translateY(${y.current}px) translateZ(0)`
     })
 
+    // reszier
     useEffect(() => {
         let listener = throttle(entries => {
             setHeight(entries[0].contentRect.height)
@@ -123,6 +160,7 @@ export default function Page({ children, backgroundColor = "white", path }) {
         return () => resizer.disconnect()
     }, [])
 
+    // on scroll
     useEffect(() => {
         let onScroll = () => {
             if (owner === location.key) {
@@ -138,28 +176,40 @@ export default function Page({ children, backgroundColor = "white", path }) {
         return () => window.removeEventListener("scroll", onScroll, { passive: true })
     }, [location.key, owner])
 
-    useEffect(() => {
-        if (triggerTop === 1 && !transitioning) {
+    // raf nav triggers
+    useAnimationFrame(() => {
+        if (triggerTop.get() >= 1 && !tr.current) {
             let next = getUrl(path, -1)
+
+            tr.current = true
 
             if (next) {
                 navigate(next, { state: { transitionType: "top" } })
             }
         }
 
-        if (triggerBottom === 1 && !transitioning) {
+        if (triggerBottom.get() >= 1 && !tr.current) {
             let next = getUrl(path, 1)
 
+            tr.current = true
+
             if (next) {
-                navigate(next, { state: { transitionType: "bottom" } })
+                if (hasAdjacent) {
+                    let title = main.current.querySelector(".title")
+                    let { top } = title.getBoundingClientRect()
+
+                    navigate(next, { state: { transitionType: "adjacent", adjacentY: top } })
+                } else {
+                    navigate(next, { state: { transitionType: "bottom" } })
+                }
             }
         }
-    }, [triggerBottom, triggerTop, transitioning, path])
+    })
 
     useEffect(() => {
         let startY = 0
         let pullThreshold = 150
-        let wheelThreshold = 100
+        let wheelThreshold = 50
         let onTouchStart = (e) => {
             startY = e.changedTouches[0].pageY
         }
@@ -168,8 +218,8 @@ export default function Page({ children, backgroundColor = "white", path }) {
                 return
             }
 
-            setTriggerBottom(0)
-            setTriggerTop(0)
+            triggerBottom.set(0)
+            triggerTop.set(0)
         }
         let onTouchMove = (e) => {
             if (transitioning) {
@@ -181,27 +231,25 @@ export default function Page({ children, backgroundColor = "white", path }) {
 
             if (scrollY >= Math.floor(height - window.innerHeight) && dy > 0) {
                 e.preventDefault()
-                setTriggerBottom((dy / pullThreshold).clamp(0, 1))
+                triggerBottom.set((dy / pullThreshold).clamp(0, 1))
             }
 
             if (scrollY <= 0 && dy < 0) {
                 e.preventDefault()
-                setTriggerTop((Math.abs(dy) / pullThreshold).clamp(0, 1))
+                triggerTop.set((Math.abs(dy) / pullThreshold).clamp(0, 1))
             }
         }
         let onWheel = (e) => {
             let scrollY = Math.abs(y.current)
 
-            console.log(scrollY)
-
             if (scrollY <= 0 && e.deltaY < 0) {
                 e.preventDefault()
-                setTriggerTop((Math.abs(e.deltaY) / wheelThreshold).clamp(0, 1))
+                triggerTop.set((Math.abs(e.deltaY) / wheelThreshold).clamp(0, 1))
             }
 
             if (scrollY >= Math.floor(height - window.innerHeight) && e.deltaY > 0) {
                 e.preventDefault()
-                setTriggerBottom((e.deltaY / wheelThreshold).clamp(0, 1))
+                triggerBottom.set((e.deltaY / wheelThreshold).clamp(0, 1))
             }
         }
 
@@ -222,35 +270,48 @@ export default function Page({ children, backgroundColor = "white", path }) {
         <motion.main
             className="page"
             ref={main}
-            custom={transitionType}
-            exit={"exit"}
             variants={variants}
+            custom={{ transitionType, action, adjacentY }}
+            style={{
+                backgroundColor
+            }}
+            exit={"exit"}
             animate={"enter"}
             initial={"initial"}
         >
-            <div
-                style={{
-                    position: "absolute",
-                    fontSize: 16 + (triggerBottom * 16),
-                    left: "50%",
-                    marginLeft: "-1em",
-                    bottom: "1em"
-                }}
-            >
-                {Math.floor(triggerBottom * 100)}%
-            </div>
-            <div
-                style={{
-                    position: "absolute",
-                    fontSize: 16 + (triggerTop * 16),
-                    left: "50%",
-                    marginLeft: "-1em",
-                    top: "1em"
-                }}
-            >
-                {Math.floor(triggerTop * 100)}%
-            </div>
+            <Only if={getUrl(path, -1)}>
+                <motion.div
+                    style={{
+                        position: "absolute",
+                        fontSize: 32,
+                        opacity: triggerTop,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        top: "1em",
+                        zIndex: 111
+                    }}
+                >
+                    PREVIOUS
+                </motion.div>
+            </Only>
+
             {children}
+
+            <Only if={getUrl(path, 1)}>
+                <motion.div
+                    style={{
+                        position: "absolute",
+                        fontSize: 32,
+                        left: "50%",
+                        opacity: triggerBottom,
+                        transform: "translateX(-50%)",
+                        bottom: "1em",
+                        zIndex: 111
+                    }}
+                >
+                    NEXT
+                </motion.div>
+            </Only>
         </motion.main>
     )
 }
