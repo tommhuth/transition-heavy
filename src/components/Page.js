@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect, useState } from "react"
 import { useLocation, navigate, globalHistory } from "@reach/router"
-import { motion, useSpring, useTransform } from "framer-motion"
+import { motion, useSpring } from "framer-motion"
 import { useAnimationFrame, throttle } from "../utils"
 import Config from "../Config"
 import { useStore } from "../store"
@@ -122,7 +122,7 @@ export default function Page({
 
     useEffect(() => {
         tr.current = transitioning
-        console.log(transitioning)
+        
         triggerTop.set(0)
         triggerBottom.set(0)
     }, [transitioning])
@@ -177,23 +177,23 @@ export default function Page({
     }, [location.key, owner])
 
     // raf nav triggers
-    useAnimationFrame(() => {
+    useAnimationFrame(() => {  
         if (triggerTop.get() >= 1 && !tr.current) {
-            let next = getUrl(path, -1)
-
-            tr.current = true
+            let next = getUrl(path, -1) 
 
             if (next) {
+                tr.current = true
+
                 navigate(next, { state: { transitionType: "top" } })
             }
         }
 
         if (triggerBottom.get() >= 1 && !tr.current) {
-            let next = getUrl(path, 1)
-
-            tr.current = true
+            let next = getUrl(path, 1) 
 
             if (next) {
+                tr.current = true
+
                 if (hasAdjacent) {
                     let title = main.current.querySelector(".title")
                     let { top } = title.getBoundingClientRect()

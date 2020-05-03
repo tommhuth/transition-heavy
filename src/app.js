@@ -1,4 +1,5 @@
 import "../assets/styles/app.scss"
+import "./polyfill"
 
 import React, { useEffect } from "react"
 import ReactDOM from "react-dom"
@@ -11,24 +12,7 @@ import Splash from "./pages/Splash"
 import Index from "./pages/Index"
 import NotFound from "./pages/NotFound"
 
-
-/**
- * Returns a number whose value is limited to the given range.
- *
- * Example: limit the output of this computation to between 0 and 255
- * (x * 255).clamp(0, 255)
- *
- * @param {Number} min The lower boundary of the output range
- * @param {Number} max The upper boundary of the output range
- * @returns A number in the range [min, max]
- * @type Number
- */
-Number.prototype.clamp = function (min = 0, max = 1) {
-    return Math.min(Math.max(this, min), max)
-}
-
-
-window.scrollTo(0,0)
+history.scrollRestoration = "manual" 
 
 function App() {
     let setTransitioning = useStore(store => store.setTransitioning)
