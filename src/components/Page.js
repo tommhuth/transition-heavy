@@ -238,6 +238,7 @@ export default function Page({
                 e.preventDefault()
                 triggerTop.set((Math.abs(dy) / pullThreshold).clamp(0, 1))
             }
+            console.log("sdf")
         }
         let onWheel = (e) => {
             let scrollY = Math.abs(y.current)
@@ -254,15 +255,15 @@ export default function Page({
         }
 
         window.addEventListener("wheel", onWheel, { passive: false })
-        document.body.addEventListener("touchstart", onTouchStart, { passive: false })
-        document.body.addEventListener("touchend", onTouchEnd, { passive: false })
-        document.body.addEventListener("touchmove", onTouchMove, { passive: false })
+        main.current.addEventListener("touchstart", onTouchStart, { passive: false })
+        main.current.addEventListener("touchend", onTouchEnd, { passive: false })
+        main.current.addEventListener("touchmove", onTouchMove, { passive: false })
         
         return () => {
             window.removeEventListener("wheel", onWheel, { passive: false })
-            document.body.removeEventListener("touchstart", onTouchStart, { passive: false })
-            document.body.removeEventListener("touchend", onTouchEnd, { passive: false })
-            document.body.removeEventListener("touchmove", onTouchMove, { passive: false })
+            main.current.removeEventListener("touchstart", onTouchStart, { passive: false })
+            main.current.removeEventListener("touchend", onTouchEnd, { passive: false })
+            main.current.removeEventListener("touchmove", onTouchMove, { passive: false })
         }
     }, [height, transitioning])
 
