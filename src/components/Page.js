@@ -254,15 +254,15 @@ export default function Page({
         }
 
         window.addEventListener("wheel", onWheel, { passive: false })
-        window.addEventListener("touchstart", onTouchStart, { passive: false })
-        window.addEventListener("touchend", onTouchEnd, { passive: false })
-        window.addEventListener("touchmove", onTouchMove, { passive: false })
-
+        document.body.addEventListener("touchstart", onTouchStart, { passive: false })
+        document.body.addEventListener("touchend", onTouchEnd, { passive: false })
+        document.body.addEventListener("touchmove", onTouchMove, { passive: false })
+        
         return () => {
             window.removeEventListener("wheel", onWheel, { passive: false })
-            window.removeEventListener("touchstart", onTouchStart, { passive: false })
-            window.removeEventListener("touchend", onTouchEnd, { passive: false })
-            window.removeEventListener("touchmove", onTouchMove, { passive: false })
+            document.body.removeEventListener("touchstart", onTouchStart, { passive: false })
+            document.body.removeEventListener("touchend", onTouchEnd, { passive: false })
+            document.body.removeEventListener("touchmove", onTouchMove, { passive: false })
         }
     }, [height, transitioning])
 
