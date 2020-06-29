@@ -9,7 +9,7 @@ export default function Splash({ path }) {
         <Page path={path}>
             <Container full>
                 <h1 className="p"> Splash screen</h1>
-                <Link to="/index" state={{ transitionType: "bottom" }}>Next</Link>
+                <Link to="/table-of-contents" state={{ transitionType: "bottom" }}>Next</Link>
  
             </Container>
         </Page>
