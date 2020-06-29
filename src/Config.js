@@ -13,6 +13,10 @@ export default {
         {
             url: "/article-1",
             origin: "bottom-partial"
+        },
+        {
+            url: "/article-2",
+            origin: "bottom-partial"
         }
     ]
 }

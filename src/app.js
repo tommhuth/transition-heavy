@@ -45,7 +45,7 @@ function App() {
                                 location={location}
                             >
                                 <Splash path="/" />
-                                <Index path="/index" />
+                                <Index path="/table-of-contents" />
                                 <Article1 path="/article-1" />
                                 <Article2 path="/article-2" />
                                 <NotFound default />

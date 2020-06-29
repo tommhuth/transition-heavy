@@ -9,7 +9,7 @@ import ResizeObserver from "resize-observer-polyfill"
 import Only from "./Only"
 
 const urls = [
-    "/", "/index", "/article-1"
+    "/", "/table-of-contents", "/article-1", "/article-2"
 ]
 const transition = {
     duration: Config.TRANSITION_DURATION / 1000,
