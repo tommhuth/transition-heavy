@@ -24,7 +24,7 @@ export default function Article1({ path }) {
                 <p className="p">Lorem ip amet, consectetur adipiscing elit. Aenean mattis dapibus sodales. Maecenas viverra tempor risus efficitur pharetra. Nulla a lectus at nibh congue pretium venenatis ut augue. Mauris eget nisl sit amet erat posuere accumsan. Praesent lacus tellus, faucibus tincidunt varius non, condimentum vitae mi. </p>
                 <p className="p">Fdolor sit amet, consectetur adipiscing elit. Aenean mattis dapibus sodales. Maecenas   tempor risus efficitur pharetra. Nulla a lectus at nibh congue pretium venenatis ut augue. Mauris eget nisl sit amet erat posuere accumsan. Praesent lacus tellus, faucibus tincidunt varius non, condimentum vitae mi. </p>
 
-                <Link to="/index" state={{ transitionType: "top" }}>Back</Link>
+                <Link to="/table-of-contents" state={{ transitionType: "top" }}>Back</Link>
             </Container>
         </Page>
     )

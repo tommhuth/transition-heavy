@@ -18,7 +18,7 @@ export default function Index({ path }) {
                         <Link to="/" state={{ transitionType: "top" }}>Splashscreen</Link>
                     </li>
                     <li>
-                        <Link to="/index" state={{ transitionType: "bottom" }}>Index</Link>
+                        <Link to="/table-of-contents" state={{ transitionType: "bottom" }}>Index</Link>
                     </li>
                     <li>
                         <Link to="/article-1" state={{ transitionType: "bottom" }}>Article 1</Link>
