@@ -137,7 +137,7 @@ export default function Page({
     // scroll raf
     useAnimationFrame(() => {
         let dy = targetY.current - y.current
-        let ease = .1
+        let ease = .2
 
         if (Math.abs(dy) < .05) {
             y.current = targetY.current
@@ -237,8 +237,7 @@ export default function Page({
             if (scrollY <= 0 && dy < 0) {
                 e.preventDefault()
                 triggerTop.set((Math.abs(dy) / pullThreshold).clamp(0, 1))
-            }
-            console.log("sdf")
+            } 
         }
         let onWheel = (e) => {
             let scrollY = Math.abs(y.current)
